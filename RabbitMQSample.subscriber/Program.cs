@@ -15,15 +15,16 @@ internal class Program
             var channel = connection.CreateModel(); // kanal oluştur
 
             //channel.QueueDeclare("test-queue", true, false, false);
-            string queueName = channel.QueueDeclare().QueueName;
+            //string queueName = channel.QueueDeclare().QueueName;
 
-            channel.QueueBind(queueName, "logs-fanout","", null); // fanout exchange ile bağla ve kuyruk bind et. Kapatınca kuyruğu siler.
+            /*channel.QueueBind(queueName, "logs-fanout","", null);*/ // fanout exchange ile bağla ve kuyruk bind et. Kapatınca kuyruğu siler.
+             
 
             channel.BasicQos(0, 1, false); // her seferinde 1 tane mesaj alıp işleyecek.
 
             var consumer = new EventingBasicConsumer(channel); // mesajları dinleyecek olan consumer
 
-            channel.BasicConsume(queueName,false, consumer); // mesajları dinlemeye başla
+            channel.BasicConsume("direct-queue-Information", false, consumer); // mesajları dinlemeye başla
 
             Console.WriteLine("loglar dinleniyor.");
 
@@ -31,7 +32,8 @@ internal class Program
             {
                 var message = Encoding.UTF8.GetString(e.Body.ToArray());
                 Thread.Sleep(1500);
-                Console.WriteLine("Gelen Mesaj :"+message);
+                Console.WriteLine("Gelen Log :"+message);
+                File.AppendAllText("log-information", message + "\n");
 
                 channel.BasicAck(e.DeliveryTag, false);
             };
