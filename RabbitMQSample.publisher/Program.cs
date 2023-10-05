@@ -6,7 +6,7 @@ public enum LogEnums
     Critical = 0,
     Error = 1,
     Warning = 2,
-    Information = 3
+    Info = 3
 }
 public class Program
 {
@@ -38,13 +38,13 @@ public class Program
 
             Enumerable.Range(0, 50).ToList().ForEach(x =>
             {
-                LogEnums logEnum = (LogEnums)new Random().Next(1,5);
+                LogEnums logEnum = (LogEnums)new Random().Next(0,4);
                 var routeKey = $"route-{logEnum}";
-                string message = $"{logEnum} nolu log";
+                string message = $"{logEnum} {x} nolu log";
                 var messageBody = Encoding.UTF8.GetBytes(message);
                 //channel.BasicPublish("logs-fanout", string.Empty, null, messageBody);
                 channel.BasicPublish("logs-direct",routeKey,null,messageBody);
-                Console.WriteLine("log gönderildi.");
+                Console.WriteLine($"log gönderildi.{message}");
             }
             );
             Console.ReadLine();
