@@ -23,30 +23,50 @@ public class Program
 
             //channel.ExchangeDeclare("logs-fanout", durable: true, type: ExchangeType.Fanout);
 
-            channel.ExchangeDeclare("logs-direct", durable: true, type: ExchangeType.Direct);
+            //channel.ExchangeDeclare("logs-direct", durable: true, type: ExchangeType.Direct);
 
-            Enum.GetNames(typeof(LogEnums)).ToList().ForEach(
-                e =>
-                {
-                    var routeKey = $"route-{e}";
-                    var queuename = $"direct-queue-{e}";
-                    channel.QueueDeclare(queuename, true, false, false);
-                    channel.QueueBind(queuename, "logs-direct", routeKey,null);
-                }
-                ); 
+            //Enum.GetNames(typeof(LogEnums)).ToList().ForEach(
+            //    e =>
+            //    {
+            //        var routeKey = $"route-{e}";
+            //        var queuename = $"direct-queue-{e}";
+            //        channel.QueueDeclare(queuename, true, false, false);
+            //        channel.QueueBind(queuename, "logs-direct", routeKey, null);
+            //    }
+            //    );
 
+            //channel.ExchangeDeclare("logs-topic", durable: true, type: ExchangeType.Topic);
 
-            Enumerable.Range(0, 50).ToList().ForEach(x =>
-            {
-                LogEnums logEnum = (LogEnums)new Random().Next(0,4);
-                var routeKey = $"route-{logEnum}";
-                string message = $"{logEnum} {x} nolu log";
-                var messageBody = Encoding.UTF8.GetBytes(message);
-                //channel.BasicPublish("logs-fanout", string.Empty, null, messageBody);
-                channel.BasicPublish("logs-direct",routeKey,null,messageBody);
-                Console.WriteLine($"log gönderildi.{message}");
-            }
-            );
+            //Random rnd = new Random();
+
+            //Enumerable.Range(0, 50).ToList().ForEach(x =>
+            //{
+            //    LogEnums logEnum1 = (LogEnums)rnd.Next(0, 4);
+            //    LogEnums logEnum2 = (LogEnums)rnd.Next(0, 4);
+            //    LogEnums logEnum3 = (LogEnums)rnd.Next(0, 4); 
+
+            //    var routeKey = $"{logEnum1}.{logEnum2}.{logEnum3}";
+            //    string message = $"{logEnum1}.{logEnum2}.{logEnum3} nolu log";
+            //    var messageBody = Encoding.UTF8.GetBytes(message);
+            //    //channel.BasicPublish("logs-fanout", string.Empty, null, messageBody);
+            //    //channel.BasicPublish("logs-direct", routeKey, null, messageBody);
+            //    channel.BasicPublish("logs-topic", routeKey, null, messageBody);
+            //    Console.WriteLine($"log gönderildi.{message}");
+            //}
+            //);
+
+            Dictionary<string,Object> headers = new Dictionary<string,Object>();
+
+            headers.Add("format", "pdf");
+            headers.Add("shape", "a4");
+
+            var properties=channel.CreateBasicProperties();
+            properties.Headers = headers;
+
+            channel.ExchangeDeclare("header-exchange", durable: true, type: ExchangeType.Headers);
+
+            channel.BasicPublish("header-exchange", String.Empty, properties, Encoding.UTF8.GetBytes("Header Exchange Deneme"));
+
             Console.ReadLine();
         }
     }
